@@ -1,23 +1,129 @@
 const STORAGE_KEY = 'pcConfig';
+const PROFILES_KEY = 'pcProfiles';
 
-// Bouton: sauvegarder la config dans localStorage
-document.getElementById('save').addEventListener('click', () => {
-  const data = buildDataFromForm();
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-  alert('Configuration sauvegardée dans le navigateur.');
+// Fonctions pour gérer les profils
+function getProfiles() {
+  const raw = localStorage.getItem(PROFILES_KEY);
+  return raw ? JSON.parse(raw) : {};
+}
+
+function saveProfiles(profiles) {
+  localStorage.setItem(PROFILES_KEY, JSON.stringify(profiles));
+}
+
+// Bouton: ouvrir le menu de sauvegarde
+document.getElementById('save-profile-btn').addEventListener('click', () => {
+  document.getElementById('save-modal').style.display = 'flex';
 });
 
-// Bouton: charger la config depuis localStorage
-document.getElementById('load').addEventListener('click', () => {
-  const raw = localStorage.getItem(STORAGE_KEY);
-  if (!raw) {
-    alert('Aucune configuration sauvegardée.');
+// Bouton: confirmer la sauvegarde
+document.getElementById('confirm-save').addEventListener('click', () => {
+  const profileName = document.getElementById('save-profile-name').value.trim();
+  if (!profileName) {
+    alert('Veuillez entrer un nom de profil.');
     return;
   }
-  const data = JSON.parse(raw);
+  const data = buildDataFromForm();
+  const profiles = getProfiles();
+  profiles[profileName] = data;
+  saveProfiles(profiles);
+  alert(`Configuration sauvegardée dans le profil "${profileName}".`);
+  document.getElementById('save-modal').style.display = 'none'; // Masquer après sauvegarde
+  document.getElementById('save-profile-name').value = ''; // Vider le champ
+});
+
+// Bouton: annuler la sauvegarde
+document.getElementById('cancel-save').addEventListener('click', () => {
+  document.getElementById('save-modal').style.display = 'none';
+  document.getElementById('save-profile-name').value = '';
+});
+
+// Fermer la modal en cliquant en dehors
+document.getElementById('save-modal').addEventListener('click', (e) => {
+  if (e.target === document.getElementById('save-modal')) {
+    document.getElementById('save-modal').style.display = 'none';
+    document.getElementById('save-profile-name').value = '';
+  }
+});
+
+// Bouton: ouvrir le menu des profils
+document.getElementById('load-profile').addEventListener('click', () => {
+  populateLoadSelect();
+  document.getElementById('load-modal').style.display = 'flex';
+});
+
+// Bouton: confirmer le chargement
+document.getElementById('confirm-load').addEventListener('click', () => {
+  const select = document.getElementById('load-profile-select');
+  const profileName = select.value;
+  if (!profileName) {
+    alert('Veuillez sélectionner un profil.');
+    return;
+  }
+  const profiles = getProfiles();
+  const data = profiles[profileName];
+  if (!data) return;
   fillFormFromData(data);
+  document.getElementById('load-modal').style.display = 'none';
   document.getElementById('output').value = JSON.stringify(data, null, 2);
 });
+
+// Bouton: annuler le chargement
+document.getElementById('cancel-load').addEventListener('click', () => {
+  document.getElementById('load-modal').style.display = 'none';
+});
+
+// Bouton: supprimer le profil
+document.getElementById('delete-profile').addEventListener('click', () => {
+  const select = document.getElementById('load-profile-select');
+  const profileName = select.value;
+  if (!profileName) {
+    alert('Veuillez sélectionner un profil à supprimer.');
+    return;
+  }
+  if (!confirm(`Êtes-vous sûr de vouloir supprimer le profil "${profileName}" ?`)) return;
+  const profiles = getProfiles();
+  delete profiles[profileName];
+  saveProfiles(profiles);
+  populateLoadSelect(); // Actualiser la liste
+  alert(`Profil "${profileName}" supprimé.`);
+  select.value = '';
+});
+
+// Fermer la modal en cliquant en dehors
+document.getElementById('load-modal').addEventListener('click', (e) => {
+  if (e.target === document.getElementById('load-modal')) {
+    document.getElementById('load-modal').style.display = 'none';
+  }
+});
+
+// Fonction pour peupler le select des profils
+function populateProfileSelect() {
+  const select = document.getElementById('profile-select');
+  if (select) {
+    select.innerHTML = '<option value="">Choisir un profil existant</option>';
+    const profiles = getProfiles();
+    for (const name in profiles) {
+      const option = document.createElement('option');
+      option.value = name;
+      option.textContent = name;
+      select.appendChild(option);
+    }
+  }
+}
+
+// Fonction pour peupler le select de chargement
+function populateLoadSelect() {
+  const select = document.getElementById('load-profile-select');
+  select.innerHTML = '<option value="">Sélectionner un profil</option>';
+  const profiles = getProfiles();
+  for (const name in profiles) {
+    const option = document.createElement('option');
+    option.value = name;
+    option.textContent = name;
+    select.appendChild(option);
+  }
+}
 
 // ---- Fonctions utilitaires ----
 
@@ -193,9 +299,37 @@ document.getElementById('upload-json').addEventListener('change', (event) => {
       alert('Fichier JSON invalide.');
     }
   };
+  
 
   reader.readAsText(file);
 });
+// Définition des champs pour chaque composant
+const componentFields = {
+  cpu:     ['cpu-name', 'cpu-price', 'cpu-image', 'cpu-link', 'cpu-desc'],
+  gpu:     ['gpu-name', 'gpu-price', 'gpu-image', 'gpu-link', 'gpu-desc'],
+  ram:     ['ram-name', 'ram-price', 'ram-image', 'ram-link', 'ram-desc'],
+  motherboard: ['mb-name', 'mb-price', 'mb-image', 'mb-link', 'mb-desc'],
+  storage: ['stor-name', 'stor-price', 'stor-image', 'stor-link', 'stor-desc'],
+  psu:     ['psu-name', 'psu-price', 'psu-image', 'psu-link', 'psu-desc'],
+  pcCase:  ['case-name', 'case-price', 'case-image', 'case-link', 'case-desc'],
+  cooler:  ['cooler-name', 'cooler-price', 'cooler-image', 'cooler-link', 'cooler-desc']
+};
+
+// Boutons pour vider les champs de chaque composant
+document.querySelectorAll('.clear-component').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const key = btn.dataset.component;
+    const fields = componentFields[key];
+    if (!fields) return;
+
+    // Vider tous les champs de ce composant d'un coup
+    fields.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.value = '';
+    });
+  });
+});
+
 // Aller à la page d'index EN SAUVEGARDANT d'abord
 document.getElementById('go-index').addEventListener('click', () => {
   const data = buildDataFromForm();                 // récupère la config actuelle
@@ -204,15 +338,12 @@ document.getElementById('go-index').addEventListener('click', () => {
 });
 // Au chargement de preconfig.html : recharger la config sauvegardée
 window.addEventListener('DOMContentLoaded', () => {
-  const raw = localStorage.getItem(STORAGE_KEY);
-  if (!raw) return;
-
-  try {
-    const data = JSON.parse(raw);          // parse le JSON stocké [web:129][web:249]
-    fillFormFromData(data);                // remet les valeurs dans les champs [file:272]
-    const output = document.getElementById('output');
-    if (output) output.value = JSON.stringify(data, null, 2);
-  } catch (e) {
-    console.error('Config invalide dans localStorage', e);
+  populateProfileSelect();
+  // Charger le profil 'default' si existe
+  const profiles = getProfiles();
+  if (profiles['default']) {
+    fillFormFromData(profiles['default']);
+    document.getElementById('profile-name').value = 'default';
+    document.getElementById('output').value = JSON.stringify(profiles['default'], null, 2);
   }
 });

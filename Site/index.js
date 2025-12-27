@@ -1,16 +1,36 @@
 const STORAGE_KEY = 'pcConfig';
+const PROFILES_KEY = 'pcProfiles';
 let COMPONENT_DATA = {};
 
-// Charger la config depuis localStorage
-const raw = localStorage.getItem(STORAGE_KEY);
-if (raw) {
-  try {
-    COMPONENT_DATA = JSON.parse(raw);
-  } catch (e) {
-    console.error('Config invalide dans localStorage', e);
-  }
+// Fonctions pour gérer les profils
+function getProfiles() {
+  const raw = localStorage.getItem(PROFILES_KEY);
+  return raw ? JSON.parse(raw) : {};
+}
+
+// Charger la config depuis localStorage (ancien système ou profil default)
+const profiles = getProfiles();
+if (profiles['default']) {
+  COMPONENT_DATA = profiles['default'];
 } else {
-  console.warn('Aucune configuration trouvée. Va sur preconfig.html pour en créer une.');
+  // Fallback vers l'ancien système
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (raw) {
+    try {
+      COMPONENT_DATA = JSON.parse(raw);
+    } catch (e) {
+      console.error('Config invalide dans localStorage', e);
+    }
+  } else {
+    console.warn('Aucune configuration trouvée. Va sur preconfig.html pour en créer une.');
+  }
+}
+
+// Vérifier si une config existe
+const hasConfig = Object.values(COMPONENT_DATA).some(comp => comp && comp.name);
+const message = document.getElementById('no-config-message');
+if (message) {
+  message.style.display = hasConfig ? 'none' : 'block';
 }
 
 // Remplit les cartes

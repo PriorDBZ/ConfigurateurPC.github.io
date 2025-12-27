@@ -13,14 +13,6 @@
   <!-- Boutons en haut, alignés à gauche -->
   <section class="generator">
     <div class="generator-row">
-      <button id="save" title="Sauvegarde la configuration dans le navigateur">
-        💾 Save Config
-      </button>
-
-      <button id="load" title="Recharge la dernière configuration sauvegardée dans le navigateur">
-        🔎 Load Config
-      </button>
-
       <button id="download-json" title="Télécharge la configuration actuelle dans un fichier .json">
         ⬇️ Download Config .json
       </button>
@@ -28,6 +20,44 @@
       <button id="upload-json-btn" title="Importe une configuration depuis un fichier .json">
         ⬆️ Upload Config .json
       </button>
+    </div>
+
+    <!-- Sélection du profil -->
+    <div class="profile-row">
+      <button id="load-profile" title="Ouvrir le menu des profils">📂 Load Profile</button>
+      <button id="save-profile-btn" title="Ouvrir le menu de sauvegarde">💾 Save Profile</button>
+    </div>
+
+    <!-- Modal de chargement -->
+    <div id="load-modal" class="modal" style="display:none;">
+      <div class="modal-content">
+        <h3>Charger un profil</h3>
+        <label>Choisir un profil
+          <select id="load-profile-select">
+            <option value="">Sélectionner un profil</option>
+          </select>
+        </label>
+        <div style="margin-top:1rem;">
+          <button id="confirm-load">Charger</button>
+          <button id="delete-profile">Supprimer</button>
+          <button id="cancel-load">Annuler</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal de sauvegarde -->
+    <div id="save-modal" class="modal" style="display:none;">
+      <div class="modal-content">
+        <h3>Sauvegarder le profil</h3>
+        <label>Nom du profil
+          <input type="text" id="save-profile-name" placeholder="Entrez un nom de profil">
+        </label>
+        <div style="margin-top:1rem;">
+          <button id="confirm-save">Confirmer</button>
+          <button id="cancel-save">Annuler</button>
+        </div>
+      </div>
+    </div>
     </div>
 
     <!-- éléments cachés utilisés par le JS -->
@@ -40,6 +70,7 @@
     <!-- CPU -->
     <section class="card">
       <h2 class="card-cat">Processeur</h2>
+      <button class="clear-component" data-component="cpu">Vider</button>
 
       <label>Nom du modèle
         <input type="text" id="cpu-name">
@@ -65,6 +96,7 @@
     <!-- GPU -->
     <section class="card">
       <h2 class="card-cat">Carte graphique</h2>
+      <button class="clear-component" data-component="gpu">Vider</button>
 
       <label>Nom du modèle
         <input type="text" id="gpu-name">
@@ -90,6 +122,7 @@
     <!-- RAM -->
     <section class="card">
       <h2 class="card-cat">Mémoire RAM</h2>
+      <button class="clear-component" data-component="ram">Vider</button>
 
       <label>Nom du modèle
         <input type="text" id="ram-name">
@@ -115,6 +148,7 @@
     <!-- Carte mère -->
     <section class="card">
       <h2 class="card-cat">Carte mère</h2>
+      <button class="clear-component" data-component="motherboard">Vider</button>
 
       <label>Nom du modèle
         <input type="text" id="mb-name">
@@ -140,6 +174,7 @@
     <!-- Stockage -->
     <section class="card">
       <h2 class="card-cat">Stockage</h2>
+      <button class="clear-component" data-component="storage">Vider</button>
 
       <label>Nom du modèle
         <input type="text" id="stor-name">
@@ -165,6 +200,7 @@
     <!-- Alimentation -->
     <section class="card">
       <h2 class="card-cat">Alimentation</h2>
+      <button class="clear-component" data-component="psu">Vider</button>
 
       <label>Nom du modèle
         <input type="text" id="psu-name">
@@ -190,6 +226,7 @@
     <!-- Boîtier -->
     <section class="card">
       <h2 class="card-cat">Boîtier</h2>
+      <button class="clear-component" data-component="pcCase">Vider</button>
 
       <label>Nom du modèle
         <input type="text" id="case-name">
@@ -215,6 +252,7 @@
     <!-- Refroidissement -->
     <section class="card">
       <h2 class="card-cat">Refroidissement</h2>
+      <button class="clear-component" data-component="cooler">Vider</button>
 
       <label>Nom du modèle
         <input type="text" id="cooler-name">
