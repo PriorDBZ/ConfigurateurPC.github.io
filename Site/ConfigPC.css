@@ -46,6 +46,16 @@ h1::after {
   padding: 0 1.2rem;
 }
 
+.site-logo {
+    position: absolute;
+    left: -10rem;      /* même marge que le bouton */
+    top: 50%;
+    transform: translateY(-50%);
+    height: 100px;      /* ajuste la taille du logo */
+    width: auto;
+}
+
+
 /* Titre au centre de la zone, sans influence du bouton */
 .page-title {
   text-align: center;
